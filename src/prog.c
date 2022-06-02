@@ -67,7 +67,11 @@ void prog_mainloop(struct Prog *p)
             }
         }
 
-        player_move_forwards(p->player, p->map);
+        if (p->player->angle == p->p_target_rot)
+        {
+            for (int i = 0; i < 3; ++i)
+                player_move_forwards(p->player, p->map);
+        }
 
         SDL_RenderClear(p->rend);
 
@@ -94,7 +98,7 @@ void prog_render(struct Prog *p)
         float draw_height = p->map->tile_size * 800.f / len;
         float offset = 400.f - draw_height / 2.f;
 
-        SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(p->rend, 0, 0, 255, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
         ++x;
     }

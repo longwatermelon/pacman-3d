@@ -118,6 +118,7 @@ SDL_Point player_cast_ray_vertical(struct Player *p, float angle, struct Map *m)
 
 void player_move_forwards(struct Player *p, struct Map *m)
 {
+    printf("%f %f\n", p->pos.x, p->pos.y);
     float cos = cosf(p->angle);
     float sin = sinf(p->angle);
 
