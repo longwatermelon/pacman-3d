@@ -30,8 +30,6 @@ SDL_Point player_cast_ray(struct Player *p, float angle, struct Map *m)
     unsigned long hlen = sqrtf(hdiff.x * hdiff.x + hdiff.y * hdiff.y);
     unsigned long vlen = sqrtf(vdiff.x * vdiff.x + vdiff.y * vdiff.y);
 
-    printf("%lu %lu\n", hlen, vlen);
-
     return hlen < vlen ? h : v;
 }
 
@@ -54,7 +52,6 @@ SDL_Point player_cast_ray_horizontal(struct Player *p, float angle, struct Map *
 
     while (true)
     {
-        // TODO Is mod necessary?
         SDL_Point pos = {
             (nearest.x - fmod(nearest.x, m->tile_size)) / m->tile_size,
             (nearest.y - fmod(nearest.y, m->tile_size)) / m->tile_size
