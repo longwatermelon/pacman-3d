@@ -17,7 +17,7 @@ SDL_Point player_cast_ray(struct Player *p, float angle, struct Map *m);
 SDL_Point player_cast_ray_horizontal(struct Player *p, float angle, struct Map *m);
 SDL_Point player_cast_ray_vertical(struct Player *p, float angle, struct Map *m);
 
-void player_render_debug(struct Player *p, SDL_Renderer *rend);
+void player_move_forwards(struct Player *p, struct Map *m);
 
 #endif
 

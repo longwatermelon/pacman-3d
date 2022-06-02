@@ -115,3 +115,24 @@ SDL_Point player_cast_ray_vertical(struct Player *p, float angle, struct Map *m)
     }
 }
 
+
+void player_move_forwards(struct Player *p, struct Map *m)
+{
+    float cos = cosf(p->angle);
+    float sin = sinf(p->angle);
+
+    SDL_Point collision = {
+        p->pos.x + 32.f * cos,
+        p->pos.y + 32.f * -sin
+    };
+
+    collision.x /= m->tile_size;
+    collision.y /= m->tile_size;
+
+    if (m->layout[collision.y * m->dim.x + collision.x] == ' ')
+    {
+        p->pos.x += cos;
+        p->pos.y -= sin;
+    }
+}
+

@@ -67,6 +67,8 @@ void prog_mainloop(struct Prog *p)
             }
         }
 
+        player_move_forwards(p->player, p->map);
+
         SDL_RenderClear(p->rend);
 
         prog_render(p);
