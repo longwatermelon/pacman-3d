@@ -39,10 +39,10 @@ char *util_read_file(const char *path)
 
 float util_restrict_angle(float angle)
 {
-    if (angle < 0.f)
+    while (angle < 0.f)
         angle += 2.f * M_PI;
 
-    if (angle > 2.f * M_PI)
+    while (angle > 2.f * M_PI)
         angle -= 2.f * M_PI;
 
     return angle;

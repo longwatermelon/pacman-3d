@@ -10,8 +10,10 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->window = w;
     p->rend = r;
 
-    p->player = player_alloc((SDL_FPoint){ 1280, 1088 }, 0.f);
+    p->player = player_alloc((SDL_FPoint){ 1280 - 32, 1088 - 32 }, 0.f);
     p->map = map_alloc("map", "info");
+
+    p->p_target_rot = 0.f;
 
     return p;
 }
@@ -38,20 +40,31 @@ void prog_mainloop(struct Prog *p)
             case SDL_QUIT:
                 p->running = false;
                 break;
+            case SDL_KEYDOWN:
+            {
+                switch (evt.key.keysym.sym)
+                {
+                case SDLK_LEFT:
+                    if (p->p_target_rot == p->player->angle)
+                        prog_set_target_rot(p, p->player->angle - (M_PI / 2.f));
+                    break;
+                case SDLK_RIGHT:
+                    if (p->p_target_rot == p->player->angle)
+                        prog_set_target_rot(p, p->player->angle + (M_PI / 2.f));
+                    break;
+                }
+            } break;
             }
         }
 
-        const Uint8* keys = SDL_GetKeyboardState(0);
-
-        if (keys[SDL_SCANCODE_RIGHT]) p->player->angle += .1f;
-        if (keys[SDL_SCANCODE_LEFT]) p->player->angle -= .1f;
-
-        p->player->angle = util_restrict_angle(p->player->angle);
-
-        if (keys[SDL_SCANCODE_W])
+        if (p->player->angle != p->p_target_rot)
         {
-            p->player->pos.x += 1.f * cosf(p->player->angle);
-            p->player->pos.y += 1.f * -sinf(p->player->angle);
+            p->player->angle += (p->p_target_rot - p->player->angle) / 5.f;
+
+            if (fabsf(p->player->angle - p->p_target_rot) < .01f)
+            {
+                p->player->angle = p->p_target_rot;
+            }
         }
 
         SDL_RenderClear(p->rend);
@@ -83,5 +96,22 @@ void prog_render(struct Prog *p)
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
         ++x;
     }
+}
+
+
+void prog_set_target_rot(struct Prog *p, float angle)
+{
+    p->p_target_rot = angle;
+
+#if 0
+    float restricted = util_restrict_angle(p->p_target_rot);
+
+    if (restricted != p->p_target_rot)
+    {
+        p->player->angle += restricted - p->p_target_rot;
+        p->player->angle = util_restrict_angle(p->player->angle);
+        p->p_target_rot = restricted;
+    }
+#endif
 }
 

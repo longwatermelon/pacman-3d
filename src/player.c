@@ -1,4 +1,5 @@
 #include "player.h"
+#include "util.h"
 #include <math.h>
 #include <stdbool.h>
 
@@ -21,6 +22,8 @@ void player_free(struct Player *p)
 
 SDL_Point player_cast_ray(struct Player *p, float angle, struct Map *m)
 {
+    angle = util_restrict_angle(angle);
+
     SDL_Point h = player_cast_ray_horizontal(p, angle, m);
     SDL_Point v = player_cast_ray_vertical(p, angle, m);
 

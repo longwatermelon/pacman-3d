@@ -15,6 +15,8 @@ struct Prog
 
     struct Player *player;
     struct Map *map;
+
+    float p_target_rot;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);
@@ -23,6 +25,8 @@ void prog_free(struct Prog *p);
 void prog_mainloop(struct Prog *p);
 
 void prog_render(struct Prog *p);
+
+void prog_set_target_rot(struct Prog *p, float angle);
 
 #endif
 
