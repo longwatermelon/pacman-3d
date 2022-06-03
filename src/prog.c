@@ -15,6 +15,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
     p->p_target_rot = 0.f;
 
+    p->rotate_queue = 0.f;
+
     return p;
 }
 
@@ -45,15 +47,68 @@ void prog_mainloop(struct Prog *p)
                 switch (evt.key.keysym.sym)
                 {
                 case SDLK_LEFT:
+                    p->rotate_queue = -M_PI / 2.f;
+#if 0
                     if (p->p_target_rot == p->player->angle)
                         prog_set_target_rot(p, p->player->angle - (M_PI / 2.f));
+#endif
                     break;
                 case SDLK_RIGHT:
+                    p->rotate_queue = M_PI / 2.f;
+#if 0
                     if (p->p_target_rot == p->player->angle)
                         prog_set_target_rot(p, p->player->angle + (M_PI / 2.f));
+#endif
                     break;
                 }
             } break;
+            }
+        }
+
+        SDL_Point ipos = { (int)p->player->pos.x, (int)p->player->pos.y };
+
+        if (p->rotate_queue && p->player->angle == p->p_target_rot)
+        {
+            float angle = p->player->angle + p->rotate_queue;
+
+            bool rotate = false;
+
+            SDL_Point tmp = ipos;
+            int i;
+            for (i = 0; i < 3; ++i)
+            {
+                tmp.x = ipos.x + i * (int)cosf(p->player->angle);
+                tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
+
+                if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
+                {
+                    // edge case
+                    bool xe = (tmp.x + 32) % 64 != 0;
+                    bool ye = (tmp.y + 32) % 64 != 0;
+
+                    if (((int)sinf(angle) && xe) || ((int)cosf(angle) && ye))
+                    {
+                        if (((int)sinf(angle) && !xe) || ((int)cosf(angle) && !ye))
+                        {
+                            rotate = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        rotate = true;
+                        break;
+                    }
+                }
+            }
+
+            if (rotate)
+            {
+                p->player->pos.x += i * (int)cosf(p->player->angle);
+                p->player->pos.y += i * (int)-sinf(p->player->angle);
+
+                p->p_target_rot = angle;
+                p->rotate_queue = 0.f;
             }
         }
 
@@ -69,8 +124,7 @@ void prog_mainloop(struct Prog *p)
 
         if (p->player->angle == p->p_target_rot)
         {
-            for (int i = 0; i < 3; ++i)
-                player_move_forwards(p->player, p->map);
+            player_move_forwards(p->player, p->map);
         }
 
         SDL_RenderClear(p->rend);

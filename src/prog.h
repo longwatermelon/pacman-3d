@@ -17,6 +17,8 @@ struct Prog
     struct Map *map;
 
     float p_target_rot;
+
+    float rotate_queue;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);
