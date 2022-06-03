@@ -52,6 +52,9 @@ void prog_mainloop(struct Prog *p)
                 case SDLK_RIGHT:
                     p->rotate_queue = M_PI / 2.f;
                     break;
+                case SDLK_DOWN:
+                    p->rotate_queue = M_PI;
+                    break;
                 }
             } break;
             }
