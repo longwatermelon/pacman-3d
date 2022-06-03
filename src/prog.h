@@ -28,7 +28,5 @@ void prog_mainloop(struct Prog *p);
 
 void prog_render(struct Prog *p);
 
-void prog_set_target_rot(struct Prog *p, float angle);
-
 #endif
 

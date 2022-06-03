@@ -48,17 +48,9 @@ void prog_mainloop(struct Prog *p)
                 {
                 case SDLK_LEFT:
                     p->rotate_queue = -M_PI / 2.f;
-#if 0
-                    if (p->p_target_rot == p->player->angle)
-                        prog_set_target_rot(p, p->player->angle - (M_PI / 2.f));
-#endif
                     break;
                 case SDLK_RIGHT:
                     p->rotate_queue = M_PI / 2.f;
-#if 0
-                    if (p->p_target_rot == p->player->angle)
-                        prog_set_target_rot(p, p->player->angle + (M_PI / 2.f));
-#endif
                     break;
                 }
             } break;
@@ -163,22 +155,5 @@ void prog_render(struct Prog *p)
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
         ++x;
     }
-}
-
-
-void prog_set_target_rot(struct Prog *p, float angle)
-{
-    p->p_target_rot = angle;
-
-#if 0
-    float restricted = util_restrict_angle(p->p_target_rot);
-
-    if (restricted != p->p_target_rot)
-    {
-        p->player->angle += restricted - p->p_target_rot;
-        p->player->angle = util_restrict_angle(p->player->angle);
-        p->p_target_rot = restricted;
-    }
-#endif
 }
 
