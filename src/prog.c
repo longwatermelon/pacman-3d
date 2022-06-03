@@ -154,7 +154,8 @@ void prog_render(struct Prog *p)
         float draw_height = p->map->tile_size * 800.f / len;
         float offset = 400.f - draw_height / 2.f;
 
-        SDL_SetRenderDrawColor(p->rend, 0, 0, 255, 255);
+        float brightness = fmax(0.f, 255.f - (len / 400.f) * 255.f);
+        SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
         ++x;
     }
