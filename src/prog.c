@@ -70,45 +70,52 @@ void prog_mainloop(struct Prog *p)
         if (p->rotate_queue && p->player->angle == p->p_target_rot)
         {
             float angle = p->player->angle + p->rotate_queue;
+            SDL_Point index = {
+                (p->player->pos.x + 64.f * cosf(angle)) / 64,
+                (p->player->pos.y + 64.f * -sinf(angle)) / 64
+            };
 
-            bool rotate = false;
-
-            SDL_Point tmp = ipos;
-            int i;
-            for (i = 0; i < 3; ++i)
+            if (p->map->layout[index.y * p->map->dim.x + index.x] == ' ')
             {
-                tmp.x = ipos.x + i * (int)cosf(p->player->angle);
-                tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
+                bool rotate = false;
 
-                if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
+                SDL_Point tmp = ipos;
+                int i;
+                for (i = 0; i < 3; ++i)
                 {
-                    // edge case
-                    bool xe = (tmp.x + 32) % 64 != 0;
-                    bool ye = (tmp.y + 32) % 64 != 0;
+                    tmp.x = ipos.x + i * (int)cosf(p->player->angle);
+                    tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
 
-                    if (((int)sinf(angle) && xe) || ((int)cosf(angle) && ye))
+                    if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
                     {
-                        if (((int)sinf(angle) && !xe) || ((int)cosf(angle) && !ye))
+                        // edge case
+                        bool xe = (tmp.x + 32) % 64 != 0;
+                        bool ye = (tmp.y + 32) % 64 != 0;
+
+                        if (((int)sinf(angle) && xe) || ((int)cosf(angle) && ye))
+                        {
+                            if (((int)sinf(angle) && !xe) || ((int)cosf(angle) && !ye))
+                            {
+                                rotate = true;
+                                break;
+                            }
+                        }
+                        else
                         {
                             rotate = true;
                             break;
                         }
                     }
-                    else
-                    {
-                        rotate = true;
-                        break;
-                    }
                 }
-            }
 
-            if (rotate)
-            {
-                p->player->pos.x += i * (int)cosf(p->player->angle);
-                p->player->pos.y += i * (int)-sinf(p->player->angle);
+                if (rotate)
+                {
+                    p->player->pos.x += i * (int)cosf(p->player->angle);
+                    p->player->pos.y += i * (int)-sinf(p->player->angle);
 
-                p->p_target_rot = angle;
-                p->rotate_queue = 0.f;
+                    p->p_target_rot = angle;
+                    p->rotate_queue = 0.f;
+                }
             }
         }
 
