@@ -66,7 +66,7 @@ SDL_Point player_cast_ray_horizontal(struct Player *p, float angle, struct Map *
         if (pos.x < 0 || pos.x >= m->dim.x || pos.y < 0 || pos.y > m->dim.y)
             return (SDL_Point){ nearest.x, nearest.y };
 
-        if (m->layout[pos.y * m->dim.x + pos.x] != ' ')
+        if (m->layout[pos.y * m->dim.x + pos.x] == 'B')
             return (SDL_Point){ nearest.x, nearest.y };
 
         float dy = (angle < M_PI ? -m->tile_size : m->tile_size);
@@ -105,7 +105,7 @@ SDL_Point player_cast_ray_vertical(struct Player *p, float angle, struct Map *m)
         if (pos.x < 0 || pos.x >= m->dim.x || pos.y < 0 || pos.y >= m->dim.y)
             return (SDL_Point){ nearest.x, nearest.y };
 
-        if (m->layout[pos.y * m->dim.x + pos.x] != ' ')
+        if (m->layout[pos.y * m->dim.x + pos.x] == 'B')
             return (SDL_Point){ nearest.x, nearest.y };
 
         float dx = (angle < M_PI / 2.f || angle > 3.f * M_PI / 2.f ? m->tile_size : -m->tile_size);
@@ -129,7 +129,7 @@ void player_move_forwards(struct Player *p, struct Map *m)
     collision.x /= m->tile_size;
     collision.y /= m->tile_size;
 
-    if (m->layout[collision.y * m->dim.x + collision.x] == ' ')
+    if (m->layout[collision.y * m->dim.x + collision.x] != 'B')
     {
         p->pos.x += 3.f * cos;
         p->pos.y -= 3.f * sin;

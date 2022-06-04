@@ -70,7 +70,7 @@ void prog_mainloop(struct Prog *p)
                 (p->player->pos.y + 64.f * -sinf(angle)) / 64
             };
 
-            if (p->map->layout[index.y * p->map->dim.x + index.x] == ' ')
+            if (p->map->layout[index.y * p->map->dim.x + index.x] != 'B')
             {
                 bool rotate = false;
 
