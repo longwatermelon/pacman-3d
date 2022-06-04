@@ -143,7 +143,7 @@ void prog_render(struct Prog *p)
 {
     int x = 1;
 
-    for (float i = p->player->angle - M_PI / 6.f; i < p->player->angle + M_PI / 6.f; i += .0013f)
+    for (float i = p->player->angle - .463f; i < p->player->angle + .463f; i += .00115f)
     {
         SDL_Point endp = player_cast_ray(p->player, util_restrict_angle(i), p->map);
         SDL_Point delta = { endp.x - p->player->pos.x, endp.y - p->player->pos.y };
