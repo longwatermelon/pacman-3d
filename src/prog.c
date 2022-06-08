@@ -168,11 +168,12 @@ void prog_render(struct Prog *p)
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
 
         float elen = player_cast_ray_entity(p->player, i, p->entities, p->nentities);
+        elen *= cosf(util_restrict_angle(p->player->angle - i));
 
         if (elen < len)
         {
             SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
-            SDL_RenderDrawLine(p->rend, x, 400, x, 800);
+            SDL_RenderDrawLine(p->rend, x, 400, x, 400 + (32.f * 800.f / elen));
         }
 
         ++x;

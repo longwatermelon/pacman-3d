@@ -162,6 +162,9 @@ float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents
 
     for (size_t i = 0; i < nents; ++i)
     {
+        if (vec_dot(rdir, vec_normalize(vec_subv(ents[i]->pos, p->pos))) < 0.f)
+            continue;
+
         Vec2f end = vec_addv(ents[i]->pos, vec_mulf(edir, 16.f));
         int t = util_rays_intersection(end, vec_mulf(edir, -1.f), p->pos, rdir);
 
