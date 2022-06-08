@@ -18,8 +18,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
     p->rotate_queue = 0.f;
 
-    p->entities = 0;
-    p->nentities = 0;
+    p->pellets = 0;
+    p->npellets = 0;
 
     for (int y = 0; y < p->map->dim.y; ++y)
     {
@@ -27,13 +27,19 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {
             if (p->map->layout[y * p->map->dim.x + x] == '.')
             {
-                p->entities = realloc(p->entities, sizeof(struct Entity*) * ++p->nentities);
-                p->entities[p->nentities - 1] = entity_alloc((Vec2f){ x * 64 + 32, y * 64 + 32 });
+                p->pellets = realloc(p->pellets, sizeof(struct Entity*) * ++p->npellets);
+                p->pellets[p->npellets - 1] = entity_alloc((Vec2f){ x * 64 + 32, y * 64 + 32 });
             }
         }
     }
 
+    for (int i = 0; i < 4; ++i)
+    {
+        p->ghosts[i] = entity_alloc((Vec2f){ 1280 - 128 + 32 * i, 1088 - 32 });
+    }
+
     p->pellet_tex = IMG_LoadTexture(r, "res/pellet.png");
+    p->ghost_tex = IMG_LoadTexture(r, "res/ghost.png");
 
     return p;
 }
@@ -42,11 +48,15 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 void prog_free(struct Prog *p)
 {
     SDL_DestroyTexture(p->pellet_tex);
+    SDL_DestroyTexture(p->ghost_tex);
 
-    for (size_t i = 0; i < p->nentities; ++i)
-        entity_free(p->entities[i]);
+    for (size_t i = 0; i < p->npellets; ++i)
+        entity_free(p->pellets[i]);
 
-    free(p->entities);
+    free(p->pellets);
+
+    for (int i = 0; i < 4; ++i)
+        entity_free(p->ghosts[i]);
 
     player_free(p->player);
     map_free(p->map);
@@ -183,13 +193,13 @@ void prog_render(struct Prog *p)
         SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
 
-        for (size_t j = 0; j < p->nentities; ++j)
+        for (size_t j = 0; j < p->npellets; ++j)
         {
-            if (vec_len(vec_subv(p->entities[j]->pos, p->player->pos)) >= 400.f)
+            if (vec_len(vec_subv(p->pellets[j]->pos, p->player->pos)) >= 400.f)
                 continue;
 
             int col;
-            float elen = player_cast_ray_entity(p->player, i, p->entities[j], &col);
+            float elen = player_cast_ray_entity(p->player, i, p->pellets[j], &col);
             elen *= cosf(util_restrict_angle(p->player->angle - i));
 
             if (elen < len)
@@ -198,6 +208,50 @@ void prog_render(struct Prog *p)
                 SDL_Rect src = { col, 0, 1, 32 };
                 SDL_Rect dst = { x, 400, 1, 32.f * 800.f / elen };
                 SDL_RenderCopy(p->rend, p->pellet_tex, &src, &dst);
+            }
+        }
+
+        float glens[4];
+        int cols[4];
+
+        for (int j = 0; j < 4; ++j)
+        {
+            int col;
+            float elen = player_cast_ray_entity(p->player, i, p->ghosts[j], &col);
+            elen *= cosf(util_restrict_angle(p->player->angle - i));
+
+            glens[j] = elen;
+            cols[j] = col;
+        }
+
+        for (int j = 0; j < 4; ++j)
+        {
+            for (int k = j; k < 4; ++k)
+            {
+                if (glens[k] > glens[j])
+                {
+                    float tmpf = glens[j];
+                    glens[j] = glens[k];
+                    glens[k] = tmpf;
+
+                    int tmpi = cols[j];
+                    cols[j] = cols[k];
+                    cols[k] = tmpi;
+                }
+            }
+        }
+
+        for (int j = 0; j < 4; ++j)
+        {
+            if (glens[j] >= 400.f)
+                continue;
+
+            if (glens[j] < len)
+            {
+                SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
+                SDL_Rect src = { cols[j], 0, 1, 32 };
+                SDL_Rect dst = { x, 400, 1, 32.f * 800.f / glens[j] };
+                SDL_RenderCopy(p->rend, p->ghost_tex, &src, &dst);
             }
         }
 

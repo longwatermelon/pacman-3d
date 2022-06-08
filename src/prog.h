@@ -21,10 +21,13 @@ struct Prog
 
     float rotate_queue;
 
-    struct Entity **entities;
-    size_t nentities;
+    struct Entity **pellets;
+    size_t npellets;
+
+    struct Entity *ghosts[4];
 
     SDL_Texture *pellet_tex;
+    SDL_Texture *ghost_tex;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);
