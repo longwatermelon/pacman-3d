@@ -11,6 +11,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->window = w;
     p->rend = r;
 
+    p->font = TTF_OpenFont("res/font.ttf", 16);
+
     p->player = player_alloc((Vec2f){ 1280 - 32, 1088 - 32 }, 0.f);
     p->map = map_alloc("map", "info");
 
@@ -34,6 +36,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
             }
         }
     }
+
+    p->total_pellets = p->npellets;
 
     for (int i = 0; i < 4; ++i)
     {
@@ -139,7 +143,7 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {20, 20},
         {27, 20},
         {27, 34},
-        {34, 30},
+        {30, 34},
         {30, 26},
         {38, 26},
         {38, 29},
@@ -187,6 +191,8 @@ void prog_free(struct Prog *p)
 
     player_free(p->player);
     map_free(p->map);
+
+    TTF_CloseFont(p->font);
     free(p);
 }
 
@@ -229,14 +235,31 @@ void prog_mainloop(struct Prog *p)
         {
             if (vec_len(vec_subv(p->player->pos, p->pellets[i]->pos)) < 5.f)
             {
+                ++p->score;
                 entity_free(p->pellets[i]);
                 memmove(p->pellets + i, p->pellets + i + 1, (--p->npellets - i) * sizeof(struct Entity*));
             }
         }
 
+#if 0
+        printf("\n========\n");
+        for (int i = 0; i < 4; ++i)
+        {
+            printf("Ghost %d: index %zu | target %d %d | current %d %d\n", i, p->gpaths[i]->idx, p->gpaths[i]->tile.x, p->gpaths[i]->tile.y, (int)p->ghosts[i]->pos.x / 64, (int)p->ghosts[i]->pos.y / 64);
+        }
+#endif
+
         SDL_RenderClear(p->rend);
 
         prog_render(p);
+
+        char s[20] = { 0 };
+        sprintf(s, "Pellets: %d / %zu", p->score, p->total_pellets);
+        SDL_Texture *score = util_render_text(p->rend, p->font, s, (SDL_Color){ 255, 255, 255 });
+        SDL_Rect dst = { 20, 10 };
+        SDL_QueryTexture(score, 0, 0, &dst.w, &dst.h);
+        SDL_RenderCopy(p->rend, score, 0, &dst);
+        SDL_DestroyTexture(score);
 
         SDL_SetRenderDrawColor(p->rend, 0, 0, 0, 255);
         SDL_RenderPresent(p->rend);

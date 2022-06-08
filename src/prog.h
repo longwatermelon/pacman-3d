@@ -7,6 +7,7 @@
 #include "ghost.h"
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 struct Prog
 {
@@ -14,6 +15,8 @@ struct Prog
 
     SDL_Window *window;
     SDL_Renderer *rend;
+
+    TTF_Font *font;
 
     struct Player *player;
     struct Map *map;
@@ -23,7 +26,7 @@ struct Prog
     float rotate_queue;
 
     struct Entity **pellets;
-    size_t npellets;
+    size_t npellets, total_pellets;
 
     struct Entity *ghosts[4];
     struct GhostPath *gpaths[4];

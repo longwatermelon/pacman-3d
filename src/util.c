@@ -63,3 +63,17 @@ float util_rays_intersection(Vec2f p, Vec2f r, Vec2f q, Vec2f s)
         return -1;
 }
 
+
+SDL_Texture *util_render_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Color color)
+{
+    if (!text[0])
+        return 0;
+
+    SDL_Surface* surf = TTF_RenderUTF8_Blended(font, text, color);
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surf);
+
+    SDL_FreeSurface(surf);
+
+    return tex;
+}
+
