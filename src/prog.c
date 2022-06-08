@@ -13,7 +13,7 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
     p->font = TTF_OpenFont("res/font.ttf", 16);
 
-    p->player = player_alloc((Vec2f){ 1280 - 32, 1088 - 32 }, 0.f);
+    p->player = player_alloc((Vec2f){ 19 * 64 + 32, 22 * 64 + 32 }, 0.f);
     p->map = map_alloc("map", "info");
 
     p->p_target_rot = 0.f;
