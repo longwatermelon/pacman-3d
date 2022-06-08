@@ -19,7 +19,7 @@ SDL_Point player_cast_ray(struct Player *p, float angle, struct Map *m);
 SDL_Point player_cast_ray_horizontal(struct Player *p, float angle, struct Map *m);
 SDL_Point player_cast_ray_vertical(struct Player *p, float angle, struct Map *m);
 
-float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents, size_t nents, int *col);
+float player_cast_ray_entity(struct Player *p, float angle, struct Entity *e, int *col);
 
 void player_move_forwards(struct Player *p, struct Map *m);
 

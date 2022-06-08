@@ -18,9 +18,20 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
     p->rotate_queue = 0.f;
 
-    p->entities = malloc(sizeof(struct Entity*));
-    p->nentities = 1;
-    p->entities[0] = entity_alloc((Vec2f){ p->player->pos.x + 100, p->player->pos.y });
+    p->entities = 0;
+    p->nentities = 0;
+
+    for (int y = 0; y < p->map->dim.y; ++y)
+    {
+        for (int x = 0; x < p->map->dim.x; ++x)
+        {
+            if (p->map->layout[y * p->map->dim.x + x] == '.')
+            {
+                p->entities = realloc(p->entities, sizeof(struct Entity*) * ++p->nentities);
+                p->entities[p->nentities - 1] = entity_alloc((Vec2f){ x * 64 + 32, y * 64 + 32 });
+            }
+        }
+    }
 
     p->pellet_tex = IMG_LoadTexture(r, "res/pellet.png");
 
@@ -172,16 +183,22 @@ void prog_render(struct Prog *p)
         SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
 
-        int col;
-        float elen = player_cast_ray_entity(p->player, i, p->entities, p->nentities, &col);
-        elen *= cosf(util_restrict_angle(p->player->angle - i));
-
-        if (elen < len)
+        for (size_t j = 0; j < p->nentities; ++j)
         {
-            SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
-            SDL_Rect src = { col, 0, 1, 32 };
-            SDL_Rect dst = { x, 400, 1, 32.f * 800.f / elen };
-            SDL_RenderCopy(p->rend, p->pellet_tex, &src, &dst);
+            if (vec_len(vec_subv(p->entities[j]->pos, p->player->pos)) >= 400.f)
+                continue;
+
+            int col;
+            float elen = player_cast_ray_entity(p->player, i, p->entities[j], &col);
+            elen *= cosf(util_restrict_angle(p->player->angle - i));
+
+            if (elen < len)
+            {
+                SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
+                SDL_Rect src = { col, 0, 1, 32 };
+                SDL_Rect dst = { x, 400, 1, 32.f * 800.f / elen };
+                SDL_RenderCopy(p->rend, p->pellet_tex, &src, &dst);
+            }
         }
 
         ++x;

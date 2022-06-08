@@ -154,7 +154,7 @@ void player_move_forwards(struct Player *p, struct Map *m)
 }
 
 
-float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents, size_t nents, int *col)
+float player_cast_ray_entity(struct Player *p, float angle, struct Entity *e, int *col)
 {
     float nearest = INFINITY;
     *col = -1;
@@ -162,19 +162,16 @@ float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents
     Vec2f rdir = { cosf(angle), -sinf(angle) };
     Vec2f edir = { -sinf(p->angle), cosf(p->angle) };
 
-    for (size_t i = 0; i < nents; ++i)
+    if (vec_dot(rdir, vec_normalize(vec_subv(e->pos, p->pos))) < 0.f)
+        return nearest;
+
+    Vec2f end = vec_addv(e->pos, vec_mulf(edir, 16.f));
+    int t = util_rays_intersection(end, vec_mulf(edir, -1.f), p->pos, rdir);
+
+    if (t < nearest && t != -1)
     {
-        if (vec_dot(rdir, vec_normalize(vec_subv(ents[i]->pos, p->pos))) < 0.f)
-            continue;
-
-        Vec2f end = vec_addv(ents[i]->pos, vec_mulf(edir, 16.f));
-        int t = util_rays_intersection(end, vec_mulf(edir, -1.f), p->pos, rdir);
-
-        if (t < nearest && t != -1)
-        {
-            nearest = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
-            *col = (int)t;
-        }
+        nearest = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
+        *col = (int)t;
     }
 
     return nearest;
