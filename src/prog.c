@@ -10,12 +10,16 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->window = w;
     p->rend = r;
 
-    p->player = player_alloc((SDL_FPoint){ 1280 - 32, 1088 - 32 }, 0.f);
+    p->player = player_alloc((Vec2f){ 1280 - 32, 1088 - 32 }, 0.f);
     p->map = map_alloc("map", "info");
 
     p->p_target_rot = 0.f;
 
     p->rotate_queue = 0.f;
+
+    p->entities = malloc(sizeof(struct Entity*));
+    p->nentities = 1;
+    p->entities[0] = entity_alloc((Vec2f){ p->player->pos.x + 100, p->player->pos.y });
 
     return p;
 }
@@ -23,6 +27,11 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
 void prog_free(struct Prog *p)
 {
+    for (size_t i = 0; i < p->nentities; ++i)
+        entity_free(p->entities[i]);
+
+    free(p->entities);
+
     player_free(p->player);
     map_free(p->map);
     free(p);
@@ -157,6 +166,15 @@ void prog_render(struct Prog *p)
         float brightness = fmax(0.f, 255.f - (len / 400.f) * 255.f);
         SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
+
+        float elen = player_cast_ray_entity(p->player, i, p->entities, p->nentities);
+
+        if (elen < len)
+        {
+            SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
+            SDL_RenderDrawLine(p->rend, x, 400, x, 800);
+        }
+
         ++x;
     }
 }

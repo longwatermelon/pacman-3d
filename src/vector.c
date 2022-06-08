@@ -2,107 +2,41 @@
 #include <math.h>
 
 
-Vec3f vec_normalize(Vec3f v)
+float vec_len(Vec2f a)
 {
-    float len = vec_len(v);
+    return sqrtf(a.x * a.x + a.y * a.y);
+}
 
-    return (Vec3f){
-        .x = v.x / len,
-        .y = v.y / len,
-        .z = v.z / len
+
+Vec2f vec_addv(Vec2f a, Vec2f b)
+{
+    return (Vec2f){
+        a.x + b.x,
+        a.y + b.y
     };
 }
 
 
-float vec_len(Vec3f v)
+Vec2f vec_subv(Vec2f a, Vec2f b)
 {
-    return sqrtf(
-        v.x * v.x +
-        v.y * v.y +
-        v.z * v.z
-    );
-}
-
-
-Vec3f vec_addv(Vec3f v1, Vec3f v2)
-{
-    return (Vec3f){
-        .x = v1.x + v2.x,
-        .y = v1.y + v2.y,
-        .z = v1.z + v2.z
+    return (Vec2f){
+        a.x - b.x,
+        a.y - b.y
     };
 }
 
 
-Vec3f vec_addf(Vec3f v, float f)
+Vec2f vec_mulf(Vec2f a, float t)
 {
-    return (Vec3f){
-        .x = v.x + f,
-        .y = v.y + f,
-        .z = v.z + f
+    return (Vec2f){
+        a.x * t,
+        a.y * t
     };
 }
 
 
-Vec3f vec_sub(Vec3f v1, Vec3f v2)
+float vec_cross(Vec2f a, Vec2f b)
 {
-    return (Vec3f){
-        .x = v1.x - v2.x,
-        .y = v1.y - v2.y,
-        .z = v1.z - v2.z
-    };
-}
-
-
-Vec3f vec_neg(Vec3f v)
-{
-    return (Vec3f){
-        .x = -v.x,
-        .y = -v.y,
-        .z = -v.z
-    };
-}
-
-
-float vec_dot(Vec3f v1, Vec3f v2)
-{
-    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-
-Vec3f vec_mulf(Vec3f v, float f)
-{
-    return (Vec3f){
-        .x = v.x * f,
-        .y = v.y * f,
-        .z = v.z * f
-    };
-}
-
-
-Vec3f vec_divf(Vec3f v, float f)
-{
-    return (Vec3f){
-        .x = v.x / f,
-        .y = v.y / f,
-        .z = v.z / f
-    };
-}
-
-
-Vec3f vec_cross(Vec3f v1, Vec3f v2)
-{
-    Vec3f cross;
-    cross.x = v1.y * v2.z - v1.z * v2.y;
-    cross.y = v1.z * v2.x - v1.x * v2.z;
-    cross.z = v1.x * v2.y - v1.y * v2.x;
-
-    return cross;
-}
-
-
-bool vec_cmp(Vec3f v1, Vec3f v2)
-{
-    return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
+    return a.x * b.y - b.x * a.y;
 }
 

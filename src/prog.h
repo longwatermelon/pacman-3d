@@ -3,6 +3,7 @@
 
 #include "player.h"
 #include "map.h"
+#include "entity.h"
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
@@ -19,6 +20,9 @@ struct Prog
     float p_target_rot;
 
     float rotate_queue;
+
+    struct Entity **entities;
+    size_t nentities;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);

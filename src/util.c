@@ -48,3 +48,18 @@ float util_restrict_angle(float angle)
     return angle;
 }
 
+
+float util_rays_intersection(Vec2f p, Vec2f r, Vec2f q, Vec2f s)
+{
+    // p + tr = q + us
+    // t = (q - p) X s / (r X s)
+
+    float rxs = vec_cross(r, s);
+    float t = vec_cross(vec_subv(q, p), s) / rxs;
+
+    if (rxs != 0.f && t >= 0.f && t <= 32.f)
+        return t;
+    else
+        return -1;
+}
+

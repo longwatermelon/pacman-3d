@@ -1,30 +1,19 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <stdbool.h>
-
 typedef struct
 {
-    float x, y, z;
-} Vec3f;
+    float x, y;
+} Vec2f;
 
-Vec3f vec_normalize(Vec3f v);
-float vec_len(Vec3f v);
+float vec_len(Vec2f a);
 
-Vec3f vec_addv(Vec3f v1, Vec3f v2);
-Vec3f vec_addf(Vec3f v, float f);
+Vec2f vec_addv(Vec2f a, Vec2f b);
+// a - b
+Vec2f vec_subv(Vec2f a, Vec2f b);
+Vec2f vec_mulf(Vec2f a, float t);
 
-Vec3f vec_sub(Vec3f v1, Vec3f v2);
-Vec3f vec_neg(Vec3f v);
-
-float vec_dot(Vec3f v1, Vec3f v2);
-Vec3f vec_mulf(Vec3f v, float f);
-
-Vec3f vec_divf(Vec3f v, float f);
-
-Vec3f vec_cross(Vec3f v1, Vec3f v2);
-
-bool vec_cmp(Vec3f v1, Vec3f v2);
+float vec_cross(Vec2f a, Vec2f b);
 
 #endif
 

@@ -1,10 +1,12 @@
 #include "player.h"
 #include "util.h"
+#include "vector.h"
 #include <math.h>
 #include <stdbool.h>
+#include <limits.h>
 
 
-struct Player *player_alloc(SDL_FPoint pos, float angle)
+struct Player *player_alloc(Vec2f pos, float angle)
 {
     struct Player *p = malloc(sizeof(struct Player));
     p->pos = pos;
@@ -149,5 +151,26 @@ void player_move_forwards(struct Player *p, struct Map *m)
         else
             p->pos.y += 32 - dy;
     }
+}
+
+
+float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents, size_t nents)
+{
+    float nearest = INFINITY;
+    Vec2f rdir = { cosf(angle), -sinf(angle) };
+    Vec2f edir = { -sinf(p->angle), cosf(p->angle) };
+
+    for (size_t i = 0; i < nents; ++i)
+    {
+        Vec2f end = vec_addv(ents[i]->pos, vec_mulf(edir, 16.f));
+        int t = util_rays_intersection(end, vec_mulf(edir, -1.f), p->pos, rdir);
+
+        if (t < nearest && t != -1)
+        {
+            nearest = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
+        }
+    }
+
+    return nearest;
 }
 
