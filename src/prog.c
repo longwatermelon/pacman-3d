@@ -21,6 +21,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->pellets = 0;
     p->npellets = 0;
 
+    p->score = 0;
+
     for (int y = 0; y < p->map->dim.y; ++y)
     {
         for (int x = 0; x < p->map->dim.x; ++x)
@@ -96,10 +98,11 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {20, 17}
     };
 
-    for (size_t i = 0; i < sizeof(p1) / sizeof(p1[1]); ++i)
+    for (size_t i = 0; i < sizeof(p1) / sizeof(p1[0]); ++i)
         p1[i] = (SDL_Point){ p1[i].x - 1, p1[i].y - 1 };
 
     SDL_Point p2[] = {
+        {20, 17},
         {20, 20},
         {24, 20},
         {24, 26},
@@ -127,10 +130,11 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {20, 14}
     };
 
-    for (size_t i = 0; i < sizeof(p2) / sizeof(p2[2]); ++i)
+    for (size_t i = 0; i < sizeof(p2) / sizeof(p2[0]); ++i)
         p2[i] = (SDL_Point){ p2[i].x - 1, p2[i].y - 1 };
 
     SDL_Point p3[] = {
+        {21, 17},
         {20, 17},
         {20, 20},
         {27, 20},
@@ -150,7 +154,7 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {20, 20}
     };
 
-    for (size_t i = 0; i < sizeof(p3) / sizeof(p3[3]); ++i)
+    for (size_t i = 0; i < sizeof(p3) / sizeof(p3[0]); ++i)
         p3[i] = (SDL_Point){ p3[i].x - 1, p3[i].y - 1 };
 
     p->gpaths[0] = gp_alloc(p0, sizeof(p0) / sizeof(p0[0]));
@@ -220,6 +224,15 @@ void prog_mainloop(struct Prog *p)
 
         prog_handle_player(p);
         prog_move_ghosts(p);
+
+        for (size_t i = 0; i < p->npellets; ++i)
+        {
+            if (vec_len(vec_subv(p->player->pos, p->pellets[i]->pos)) < 5.f)
+            {
+                entity_free(p->pellets[i]);
+                memmove(p->pellets + i, p->pellets + i + 1, (--p->npellets - i) * sizeof(struct Entity*));
+            }
+        }
 
         SDL_RenderClear(p->rend);
 

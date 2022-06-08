@@ -30,6 +30,8 @@ struct Prog
 
     SDL_Texture *pellet_tex;
     SDL_Texture *ghost_tex;
+
+    int score;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);
