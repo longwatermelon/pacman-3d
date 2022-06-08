@@ -1,5 +1,6 @@
 #include "prog.h"
 #include "util.h"
+#include <SDL2/SDL_image.h>
 
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
@@ -21,12 +22,16 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->nentities = 1;
     p->entities[0] = entity_alloc((Vec2f){ p->player->pos.x + 100, p->player->pos.y });
 
+    p->pellet_tex = IMG_LoadTexture(r, "res/pellet.png");
+
     return p;
 }
 
 
 void prog_free(struct Prog *p)
 {
+    SDL_DestroyTexture(p->pellet_tex);
+
     for (size_t i = 0; i < p->nentities; ++i)
         entity_free(p->entities[i]);
 
@@ -167,13 +172,16 @@ void prog_render(struct Prog *p)
         SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
 
-        float elen = player_cast_ray_entity(p->player, i, p->entities, p->nentities);
+        int col;
+        float elen = player_cast_ray_entity(p->player, i, p->entities, p->nentities, &col);
         elen *= cosf(util_restrict_angle(p->player->angle - i));
 
         if (elen < len)
         {
             SDL_SetRenderDrawColor(p->rend, 255, 0, 0, 255);
-            SDL_RenderDrawLine(p->rend, x, 400, x, 400 + (32.f * 800.f / elen));
+            SDL_Rect src = { col, 0, 1, 32 };
+            SDL_Rect dst = { x, 400, 1, 32.f * 800.f / elen };
+            SDL_RenderCopy(p->rend, p->pellet_tex, &src, &dst);
         }
 
         ++x;

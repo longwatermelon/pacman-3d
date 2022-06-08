@@ -154,9 +154,11 @@ void player_move_forwards(struct Player *p, struct Map *m)
 }
 
 
-float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents, size_t nents)
+float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents, size_t nents, int *col)
 {
     float nearest = INFINITY;
+    *col = -1;
+
     Vec2f rdir = { cosf(angle), -sinf(angle) };
     Vec2f edir = { -sinf(p->angle), cosf(p->angle) };
 
@@ -171,6 +173,7 @@ float player_cast_ray_entity(struct Player *p, float angle, struct Entity **ents
         if (t < nearest && t != -1)
         {
             nearest = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
+            *col = (int)t;
         }
     }
 

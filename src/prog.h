@@ -23,6 +23,8 @@ struct Prog
 
     struct Entity **entities;
     size_t nentities;
+
+    SDL_Texture *pellet_tex;
 };
 
 struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r);
