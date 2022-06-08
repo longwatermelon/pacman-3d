@@ -413,8 +413,8 @@ Vec2f prog_move_pos(struct Prog *p, Vec2f pos, Vec2f dir, bool *moved)
 
     if (p->map->layout[collision.y * p->map->dim.x + collision.x] != 'B')
     {
-        pos.x += 3.f * dir.x;
-        pos.y -= 3.f * dir.y;
+        pos.x += 5.f * dir.x;
+        pos.y -= 5.f * dir.y;
 
         if (moved) *moved = true;
     }
