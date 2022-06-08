@@ -12,6 +12,8 @@
 struct Prog
 {
     bool running;
+    bool restart;
+    bool alive;
 
     SDL_Window *window;
     SDL_Renderer *rend;

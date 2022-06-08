@@ -7,6 +7,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 {
     struct Prog *p = malloc(sizeof(struct Prog));
     p->running = true;
+    p->restart = false;
+    p->alive = true;
 
     p->window = w;
     p->rend = r;
@@ -223,12 +225,21 @@ void prog_mainloop(struct Prog *p)
                 case SDLK_DOWN:
                     p->rotate_queue = M_PI;
                     break;
+                case SDLK_r:
+                    if (!p->alive)
+                    {
+                        p->restart = true;
+                        p->running = false;
+                    }
+                    break;
                 }
             } break;
             }
         }
 
-        prog_handle_player(p);
+        if (p->alive)
+            prog_handle_player(p);
+
         prog_move_ghosts(p);
 
         for (size_t i = 0; i < p->npellets; ++i)
@@ -238,6 +249,14 @@ void prog_mainloop(struct Prog *p)
                 ++p->score;
                 entity_free(p->pellets[i]);
                 memmove(p->pellets + i, p->pellets + i + 1, (--p->npellets - i) * sizeof(struct Entity*));
+            }
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            if (vec_len(vec_subv(p->player->pos, p->ghosts[i]->pos)) < 5.f)
+            {
+                p->alive = false;
             }
         }
 
@@ -252,6 +271,22 @@ void prog_mainloop(struct Prog *p)
         SDL_RenderClear(p->rend);
 
         prog_render(p);
+
+        if (!p->alive)
+        {
+            SDL_SetRenderDrawBlendMode(p->rend, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(p->rend, 0, 0, 0, 100);
+            SDL_RenderFillRect(p->rend, 0);
+
+            SDL_Texture *tex = util_render_text(p->rend, p->font, "Press [r] to restart", (SDL_Color){ 255, 255, 255 });
+            SDL_Rect r;
+            SDL_QueryTexture(tex, 0, 0, &r.w, &r.h);
+            r.x = 400 - r.w / 2;
+            r.y = 400 - r.h / 2;
+
+            SDL_RenderCopy(p->rend, tex, 0, &r);
+            SDL_DestroyTexture(tex);
+        }
 
         char s[20] = { 0 };
         sprintf(s, "Pellets: %d / %zu", p->score, p->total_pellets);
