@@ -35,8 +35,128 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 
     for (int i = 0; i < 4; ++i)
     {
-        p->ghosts[i] = entity_alloc((Vec2f){ 1280 - 128 + 32 * i, 1088 - 32 });
+        p->ghosts[i] = entity_alloc((Vec2f){ 17 * 64 + 32 + 64 * i, 16 * 64 + 32 });
     }
+
+    SDL_Point p0[] = {
+        {18, 17},
+        {20, 17},
+        {20, 14},
+        {27, 14},
+        {27, 10},
+        {30, 10},
+        {30, 7},
+        {2, 7},
+        {2, 2},
+        {10, 2},
+        {10, 13},
+        {5, 13},
+        {5, 14},
+        {2, 14},
+        {2, 10},
+        {5, 10},
+        {5, 11},
+        {10, 11},
+        {10, 16},
+        {13, 16},
+        {13, 14},
+        {20, 14},
+        {20, 17}
+    };
+
+    for (size_t i = 0; i < sizeof(p0) / sizeof(p0[0]); ++i)
+        p0[i] = (SDL_Point){ p0[i].x - 1, p0[i].y - 1 };
+
+    SDL_Point p1[] = {
+        {19, 17},
+        {20, 17},
+        {20, 14},
+        {13, 14},
+        {13, 10},
+        {10, 10},
+        {10, 7},
+        {30, 7},
+        {30, 2},
+        {38, 2},
+        {21, 2},
+        {21, 7},
+        {38, 7},
+        {38, 14},
+        {35, 14},
+        {35, 13},
+        {30, 13},
+        {30, 16},
+        {27, 16},
+        {27, 20},
+        {24, 20},
+        {24, 23},
+        {16, 23},
+        {16, 20},
+        {20, 20},
+        {20, 17}
+    };
+
+    for (size_t i = 0; i < sizeof(p1) / sizeof(p1[1]); ++i)
+        p1[i] = (SDL_Point){ p1[i].x - 1, p1[i].y - 1 };
+
+    SDL_Point p2[] = {
+        {20, 20},
+        {24, 20},
+        {24, 26},
+        {20, 26},
+        {20, 23},
+        {16, 23},
+        {16, 26},
+        {2, 26},
+        {2, 29},
+        {7, 29},
+        {7, 39},
+        {2, 39},
+        {2, 32},
+        {2, 39},
+        {18, 39},
+        {18, 36},
+        {13, 36},
+        {13, 29},
+        {18, 29},
+        {18, 33},
+        {27, 33},
+        {27, 26},
+        {24, 26},
+        {24, 14},
+        {20, 14}
+    };
+
+    for (size_t i = 0; i < sizeof(p2) / sizeof(p2[2]); ++i)
+        p2[i] = (SDL_Point){ p2[i].x - 1, p2[i].y - 1 };
+
+    SDL_Point p3[] = {
+        {20, 17},
+        {20, 20},
+        {27, 20},
+        {27, 34},
+        {34, 30},
+        {30, 26},
+        {38, 26},
+        {38, 29},
+        {33, 29},
+        {33, 32},
+        {38, 32},
+        {38, 39},
+        {22, 39},
+        {22, 36},
+        {27, 36},
+        {27, 20},
+        {20, 20}
+    };
+
+    for (size_t i = 0; i < sizeof(p3) / sizeof(p3[3]); ++i)
+        p3[i] = (SDL_Point){ p3[i].x - 1, p3[i].y - 1 };
+
+    p->gpaths[0] = gp_alloc(p0, sizeof(p0) / sizeof(p0[0]));
+    p->gpaths[1] = gp_alloc(p1, sizeof(p1) / sizeof(p1[1]));
+    p->gpaths[2] = gp_alloc(p2, sizeof(p2) / sizeof(p2[2]));
+    p->gpaths[3] = gp_alloc(p3, sizeof(p3) / sizeof(p3[3]));
 
     p->pellet_tex = IMG_LoadTexture(r, "res/pellet.png");
     p->ghost_tex = IMG_LoadTexture(r, "res/ghost.png");
@@ -56,7 +176,10 @@ void prog_free(struct Prog *p)
     free(p->pellets);
 
     for (int i = 0; i < 4; ++i)
+    {
         entity_free(p->ghosts[i]);
+        gp_free(p->gpaths[i]);
+    }
 
     player_free(p->player);
     map_free(p->map);
@@ -95,74 +218,8 @@ void prog_mainloop(struct Prog *p)
             }
         }
 
-        SDL_Point ipos = { (int)p->player->pos.x, (int)p->player->pos.y };
-
-        if (p->rotate_queue && p->player->angle == p->p_target_rot)
-        {
-            float angle = p->player->angle + p->rotate_queue;
-            SDL_Point index = {
-                (p->player->pos.x + 64.f * cosf(angle)) / 64,
-                (p->player->pos.y + 64.f * -sinf(angle)) / 64
-            };
-
-            if (p->map->layout[index.y * p->map->dim.x + index.x] != 'B')
-            {
-                bool rotate = false;
-
-                SDL_Point tmp = ipos;
-                int i;
-                for (i = 0; i < 3; ++i)
-                {
-                    tmp.x = ipos.x + i * (int)cosf(p->player->angle);
-                    tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
-
-                    if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
-                    {
-                        // edge case
-                        bool xe = (tmp.x + 32) % 64 != 0;
-                        bool ye = (tmp.y + 32) % 64 != 0;
-
-                        if (((int)sinf(angle) && xe) || ((int)cosf(angle) && ye))
-                        {
-                            if (((int)sinf(angle) && !xe) || ((int)cosf(angle) && !ye))
-                            {
-                                rotate = true;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            rotate = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (rotate)
-                {
-                    p->player->pos.x += i * (int)cosf(p->player->angle);
-                    p->player->pos.y += i * (int)-sinf(p->player->angle);
-
-                    p->p_target_rot = angle;
-                    p->rotate_queue = 0.f;
-                }
-            }
-        }
-
-        if (p->player->angle != p->p_target_rot)
-        {
-            p->player->angle += (p->p_target_rot - p->player->angle) / 5.f;
-
-            if (fabsf(p->player->angle - p->p_target_rot) < .01f)
-            {
-                p->player->angle = p->p_target_rot;
-            }
-        }
-
-        if (p->player->angle == p->p_target_rot)
-        {
-            player_move_forwards(p->player, p->map);
-        }
+        prog_handle_player(p);
+        prog_move_ghosts(p);
 
         SDL_RenderClear(p->rend);
 
@@ -171,6 +228,144 @@ void prog_mainloop(struct Prog *p)
         SDL_SetRenderDrawColor(p->rend, 0, 0, 0, 255);
         SDL_RenderPresent(p->rend);
     }
+}
+
+
+void prog_handle_player(struct Prog *p)
+{
+    SDL_Point ipos = { (int)p->player->pos.x, (int)p->player->pos.y };
+
+    if (p->rotate_queue && p->player->angle == p->p_target_rot)
+    {
+        float angle = p->player->angle + p->rotate_queue;
+        SDL_Point index = {
+            (p->player->pos.x + 64.f * cosf(angle)) / 64,
+            (p->player->pos.y + 64.f * -sinf(angle)) / 64
+        };
+
+        if (p->map->layout[index.y * p->map->dim.x + index.x] != 'B')
+        {
+            bool rotate = false;
+
+            SDL_Point tmp = ipos;
+            int i;
+            for (i = 0; i < 3; ++i)
+            {
+                tmp.x = ipos.x + i * (int)cosf(p->player->angle);
+                tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
+
+                if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
+                {
+                    // edge case
+                    bool xe = (tmp.x + 32) % 64 != 0;
+                    bool ye = (tmp.y + 32) % 64 != 0;
+
+                    if (((int)sinf(angle) && xe) || ((int)cosf(angle) && ye))
+                    {
+                        if (((int)sinf(angle) && !xe) || ((int)cosf(angle) && !ye))
+                        {
+                            rotate = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        rotate = true;
+                        break;
+                    }
+                }
+            }
+
+            if (rotate)
+            {
+                p->player->pos.x += i * (int)cosf(p->player->angle);
+                p->player->pos.y += i * (int)-sinf(p->player->angle);
+
+                p->p_target_rot = angle;
+                p->rotate_queue = 0.f;
+            }
+        }
+    }
+
+    if (p->player->angle != p->p_target_rot)
+    {
+        p->player->angle += (p->p_target_rot - p->player->angle) / 5.f;
+
+        if (fabsf(p->player->angle - p->p_target_rot) < .01f)
+        {
+            p->player->angle = p->p_target_rot;
+        }
+    }
+
+    if (p->player->angle == p->p_target_rot)
+    {
+        p->player->pos = prog_move_pos(p, p->player->pos, (Vec2f){
+            cosf(p->player->angle),
+            sinf(p->player->angle)
+        }, 0);
+    }
+}
+
+
+void prog_move_ghosts(struct Prog *p)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        bool moved;
+        struct GhostPath *gp = p->gpaths[i];
+        SDL_Point diff = { gp->tile.x - gp->prev_tile.x, gp->tile.y - gp->prev_tile.y };
+
+        int xsig = diff.x == 0 ? 0 : (diff.x < 0 ? -1 : 1);
+        int ysig = diff.y == 0 ? 0 : (diff.y < 0 ? -1 : 1);
+
+        p->ghosts[i]->pos = prog_move_pos(p, p->ghosts[i]->pos, (Vec2f){ xsig, -ysig }, &moved);
+
+        float len = vec_len(vec_subv(p->ghosts[i]->pos, (Vec2f){ gp->tile.x * 64 + 32, gp->tile.y * 64 + 32 }));
+        if (len < 6.f)
+        {
+            p->ghosts[i]->pos = (Vec2f){ gp->tile.x * 64 + 32, gp->tile.y * 64 + 32 };
+            gp_next_idx(gp);
+        }
+    }
+}
+
+
+Vec2f prog_move_pos(struct Prog *p, Vec2f pos, Vec2f dir, bool *moved)
+{
+    SDL_Point collision = {
+        pos.x + 32.f * dir.x,
+        pos.y + 32.f * -dir.y
+    };
+
+    collision.x /= p->map->tile_size;
+    collision.y /= p->map->tile_size;
+
+    if (p->map->layout[collision.y * p->map->dim.x + collision.x] != 'B')
+    {
+        pos.x += 3.f * dir.x;
+        pos.y -= 3.f * dir.y;
+
+        if (moved) *moved = true;
+    }
+    else
+    {
+        int dx = (int)pos.x % 32;
+        int dy = (int)pos.y % 32;
+
+        if (dx < 32 - dx)
+            pos.x -= dx;
+        else
+            pos.x += 32 - dx;
+
+        if (dy < 32 - dy)
+            pos.y -= dy;
+        else
+            pos.y += 32 - dy;
+
+        if (moved) *moved = false;
+    }
+
+    return pos;
 }
 
 
