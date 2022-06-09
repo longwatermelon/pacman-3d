@@ -1,5 +1,6 @@
 #include "prog.h"
 #include "util.h"
+#include <time.h>
 #include <SDL2/SDL_image.h>
 
 
@@ -157,7 +158,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
         {22, 36},
         {27, 36},
         {27, 20},
-        {20, 20}
+        {20, 20},
+        {20, 17}
     };
 
     for (size_t i = 0; i < sizeof(p3) / sizeof(p3[0]); ++i)
@@ -169,7 +171,11 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
     p->gpaths[3] = gp_alloc(p3, sizeof(p3) / sizeof(p3[3]));
 
     p->pellet_tex = IMG_LoadTexture(r, "res/pellet.png");
-    p->ghost_tex = IMG_LoadTexture(r, "res/ghost.png");
+    p->ghost1_tex = IMG_LoadTexture(r, "res/ghost.png");
+    p->ghost2_tex = IMG_LoadTexture(r, "res/ghost2.png");
+    p->ghost_tex = p->ghost1_tex;
+
+    clock_gettime(CLOCK_MONOTONIC, &p->ghost_animate_clock);
 
     return p;
 }
@@ -178,7 +184,8 @@ struct Prog *prog_alloc(SDL_Window *w, SDL_Renderer *r)
 void prog_free(struct Prog *p)
 {
     SDL_DestroyTexture(p->pellet_tex);
-    SDL_DestroyTexture(p->ghost_tex);
+    SDL_DestroyTexture(p->ghost1_tex);
+    SDL_DestroyTexture(p->ghost2_tex);
 
     for (size_t i = 0; i < p->npellets; ++i)
         entity_free(p->pellets[i]);
@@ -254,10 +261,19 @@ void prog_mainloop(struct Prog *p)
 
         for (int i = 0; i < 4; ++i)
         {
-            if (vec_len(vec_subv(p->player->pos, p->ghosts[i]->pos)) < 5.f)
+            if (vec_len(vec_subv(p->player->pos, p->ghosts[i]->pos)) < 15.f)
             {
                 p->alive = false;
             }
+        }
+
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        if (util_timediff(&now, &p->ghost_animate_clock) >= .2f)
+        {
+            clock_gettime(CLOCK_MONOTONIC, &p->ghost_animate_clock);
+            p->ghost_tex = p->ghost_tex == p->ghost1_tex ? p->ghost2_tex : p->ghost1_tex;
         }
 
 #if 0
@@ -320,7 +336,7 @@ void prog_handle_player(struct Prog *p)
 
             SDL_Point tmp = ipos;
             int i;
-            for (i = 0; i < 3; ++i)
+            for (i = 0; i < 6; ++i)
             {
                 tmp.x = ipos.x + i * (int)cosf(p->player->angle);
                 tmp.y = ipos.y + i * (int)-sinf(p->player->angle);

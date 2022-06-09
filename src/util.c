@@ -77,3 +77,9 @@ SDL_Texture *util_render_text(SDL_Renderer* rend, TTF_Font* font, const char* te
     return tex;
 }
 
+
+float util_timediff(struct timespec *t1, struct timespec *t2)
+{
+    return (t1->tv_sec - t2->tv_sec) + (t1->tv_nsec - t2->tv_nsec) / 1e9;
+}
+

@@ -34,7 +34,8 @@ struct Prog
     struct GhostPath *gpaths[4];
 
     SDL_Texture *pellet_tex;
-    SDL_Texture *ghost_tex;
+    SDL_Texture *ghost_tex, *ghost1_tex, *ghost2_tex;
+    struct timespec ghost_animate_clock;
 
     int score;
 };
