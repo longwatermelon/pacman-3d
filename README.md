@@ -5,7 +5,7 @@ The most unpleasant pacman gameplay you'll experience
 * Left, right, down arrow keys: rotate
 * r / up arrow: restart
 
-https://user-images.githubusercontent.com/73869536/172740008-80038ff4-4472-4212-a054-2811abd72ed9.mp4
+https://user-images.githubusercontent.com/73869536/172951042-95a23f5d-2e87-47eb-9986-0917676c73d5.mp4
 
 # Building
 Depends on sdl2, sdl2_image, sdl2_ttf
