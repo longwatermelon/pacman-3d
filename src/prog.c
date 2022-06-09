@@ -256,6 +256,9 @@ void prog_mainloop(struct Prog *p)
                 ++p->score;
                 entity_free(p->pellets[i]);
                 memmove(p->pellets + i, p->pellets + i + 1, (--p->npellets - i) * sizeof(struct Entity*));
+
+                if (p->npellets == 0)
+                    p->alive = false;
             }
         }
 
@@ -294,7 +297,7 @@ void prog_mainloop(struct Prog *p)
             SDL_SetRenderDrawColor(p->rend, 0, 0, 0, 100);
             SDL_RenderFillRect(p->rend, 0);
 
-            SDL_Texture *tex = util_render_text(p->rend, p->font, "Press [r] to restart", (SDL_Color){ 255, 255, 255 });
+            SDL_Texture *tex = util_render_text(p->rend, p->font, p->npellets == 0 ? "All pellets were collected, press [r] to restart" : "Press [r] to restart", (SDL_Color){ 255, 255, 255 });
             SDL_Rect r;
             SDL_QueryTexture(tex, 0, 0, &r.w, &r.h);
             r.x = 400 - r.w / 2;
@@ -471,13 +474,13 @@ void prog_render(struct Prog *p)
         float draw_height = p->map->tile_size * 800.f / len;
         float offset = 400.f - draw_height / 2.f;
 
-        float brightness = fmax(0.f, 255.f - (len / 400.f) * 255.f);
+        float brightness = fmax(0.f, 255.f - (len / 600.f) * 255.f);
         SDL_SetRenderDrawColor(p->rend, 0, 0, brightness, 255);
         SDL_RenderDrawLine(p->rend, x, offset, x, offset + draw_height);
 
         for (size_t j = 0; j < p->npellets; ++j)
         {
-            if (vec_len(vec_subv(p->pellets[j]->pos, p->player->pos)) >= 400.f)
+            if (vec_len(vec_subv(p->pellets[j]->pos, p->player->pos)) >= 600.f)
                 continue;
 
             int col;
@@ -525,7 +528,7 @@ void prog_render(struct Prog *p)
 
         for (int j = 0; j < 4; ++j)
         {
-            if (glens[j] >= 400.f)
+            if (glens[j] >= 600.f)
                 continue;
 
             if (glens[j] < len)
