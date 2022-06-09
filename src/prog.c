@@ -232,6 +232,7 @@ void prog_mainloop(struct Prog *p)
                 case SDLK_DOWN:
                     p->rotate_queue = M_PI;
                     break;
+                case SDLK_UP:
                 case SDLK_r:
                     if (!p->alive)
                     {

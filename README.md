@@ -3,7 +3,7 @@ The most unpleasant pacman gameplay you'll experience
 
 # Controls
 * Left, right, down arrow keys: rotate
-* r: restart
+* r / up arrow: restart
 
 https://user-images.githubusercontent.com/73869536/172740008-80038ff4-4472-4212-a054-2811abd72ed9.mp4
 
