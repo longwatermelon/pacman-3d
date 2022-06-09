@@ -336,7 +336,7 @@ void prog_handle_player(struct Prog *p)
 
             SDL_Point tmp = ipos;
             int i;
-            for (i = 0; i < 6; ++i)
+            for (i = 0; i < 5; ++i)
             {
                 tmp.x = ipos.x + i * (int)cosf(p->player->angle);
                 tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
