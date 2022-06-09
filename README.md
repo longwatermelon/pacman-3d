@@ -1,5 +1,5 @@
 # pacman-3d
-The most unpleasant pacman gameplay you'll experience
+Pacman in first person
 
 # Controls
 * Left, right, down arrow keys: rotate
