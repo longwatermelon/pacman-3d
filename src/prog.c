@@ -326,9 +326,9 @@ void prog_handle_player(struct Prog *p)
 {
     SDL_Point ipos = { (int)p->player->pos.x, (int)p->player->pos.y };
 
-    if (p->rotate_queue && p->player->angle == p->p_target_rot)
+    if (p->rotate_queue)
     {
-        float angle = p->player->angle + p->rotate_queue;
+        float angle = p->p_target_rot + p->rotate_queue;
         SDL_Point index = {
             (p->player->pos.x + 64.f * cosf(angle)) / 64,
             (p->player->pos.y + 64.f * -sinf(angle)) / 64
@@ -342,8 +342,8 @@ void prog_handle_player(struct Prog *p)
             int i;
             for (i = 0; i < 6; ++i)
             {
-                tmp.x = ipos.x + i * (int)cosf(p->player->angle);
-                tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
+                tmp.x = ipos.x + i * (int)cosf(p->p_target_rot);
+                tmp.y = ipos.y + i * (int)-sinf(p->p_target_rot);
 
                 if (tmp.x % 32 == 0 && tmp.y % 32 == 0)
                 {
@@ -369,8 +369,8 @@ void prog_handle_player(struct Prog *p)
 
             if (rotate)
             {
-                p->player->pos.x += i * (int)cosf(p->player->angle);
-                p->player->pos.y += i * (int)-sinf(p->player->angle);
+                p->player->pos.x += i * (int)cosf(p->p_target_rot);
+                p->player->pos.y += i * (int)-sinf(p->p_target_rot);
 
                 p->p_target_rot = angle;
                 p->rotate_queue = 0.f;
@@ -382,7 +382,7 @@ void prog_handle_player(struct Prog *p)
     {
         p->player->angle += (p->p_target_rot - p->player->angle) / 5.f;
 
-        if (fabsf(p->player->angle - p->p_target_rot) < .01f)
+        if (fabsf(p->player->angle - p->p_target_rot) < .001f)
         {
             p->player->angle = p->p_target_rot;
         }
