@@ -340,7 +340,7 @@ void prog_handle_player(struct Prog *p)
 
             SDL_Point tmp = ipos;
             int i;
-            for (i = 0; i < 5; ++i)
+            for (i = 0; i < 6; ++i)
             {
                 tmp.x = ipos.x + i * (int)cosf(p->player->angle);
                 tmp.y = ipos.y + i * (int)-sinf(p->player->angle);
@@ -388,13 +388,10 @@ void prog_handle_player(struct Prog *p)
         }
     }
 
-    if (p->player->angle == p->p_target_rot)
-    {
-        p->player->pos = prog_move_pos(p, p->player->pos, (Vec2f){
-            cosf(p->player->angle),
-            sinf(p->player->angle)
-        }, 0);
-    }
+    p->player->pos = prog_move_pos(p, p->player->pos, (Vec2f){
+        cosf(p->p_target_rot),
+        sinf(p->p_target_rot)
+    }, 0);
 }
 
 
@@ -433,8 +430,8 @@ Vec2f prog_move_pos(struct Prog *p, Vec2f pos, Vec2f dir, bool *moved)
 
     if (p->map->layout[collision.y * p->map->dim.x + collision.x] != 'B')
     {
-        pos.x += 5.f * dir.x;
-        pos.y -= 5.f * dir.y;
+        pos.x += 4.f * dir.x;
+        pos.y -= 4.f * dir.y;
 
         if (moved) *moved = true;
     }
