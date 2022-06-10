@@ -156,24 +156,24 @@ void player_move_forwards(struct Player *p, struct Map *m)
 
 float player_cast_ray_entity(struct Player *p, float angle, struct Entity *e, int *col)
 {
-    float nearest = INFINITY;
+    float dist = INFINITY;
     *col = -1;
 
     Vec2f rdir = { cosf(angle), -sinf(angle) };
     Vec2f edir = { -sinf(p->angle), cosf(p->angle) };
 
     if (vec_dot(rdir, vec_normalize(vec_subv(e->pos, p->pos))) < 0.f)
-        return nearest;
+        return dist;
 
     Vec2f end = vec_addv(e->pos, vec_mulf(edir, 16.f));
     int t = util_rays_intersection(end, vec_mulf(edir, -1.f), p->pos, rdir);
 
-    if (t < nearest && t != -1)
+    if (t != -1)
     {
-        nearest = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
+        dist = vec_len(vec_subv(vec_addv(end, vec_mulf(edir, -t)), p->pos));
         *col = (int)t;
     }
 
-    return nearest;
+    return dist;
 }
 
